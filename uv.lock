@@ -275,26 +275,24 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "pyside6" },
-    { name = "pytest-qt" },
 ]
 
 [package.dev-dependencies]
 dev = [
     { name = "pre-commit" },
     { name = "pytest" },
+    { name = "pytest-qt" },
     { name = "ruff" },
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "pyside6", specifier = ">=6.9.3" },
-    { name = "pytest-qt", specifier = ">=4.5.0" },
-]
+requires-dist = [{ name = "pyside6", specifier = ">=6.9.3" }]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "pre-commit", specifier = ">=4.3.0" },
     { name = "pytest", specifier = ">=8.4.2" },
+    { name = "pytest-qt", specifier = ">=4.5.0" },
     { name = "ruff", specifier = ">=0.13.3" },
 ]
 
