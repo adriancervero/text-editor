@@ -9,8 +9,6 @@ from text_editor.ui.cursor import TextCursor
 
 
 """ Each line a commit:
-TODO: - Refactor to split in multiple files
-TODO: - Text insert at cursor position
 TODO: - Multiline
 TODO: - Text selection
 
@@ -62,7 +60,8 @@ class TextEditorWidget(QWidget):
             self.buffer.backspace()
             self.text_cursor.move(0, -1)
         elif event.text():
-            self.buffer.append(event.text())
+            index = self.text_cursor.col - 1
+            self.buffer.insert(index, event.text())
             self.text_cursor.move(0, len(event.text()))
         elif event.key() == Qt.Key_Left:
             self.text_cursor.move(0, -1)

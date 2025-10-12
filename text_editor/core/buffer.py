@@ -16,3 +16,7 @@ class TextBuffer:
     def backspace(self) -> None:
         """Remove the last character from the buffer."""
         self._text = self._text[:-1]
+
+    def insert(self, index: int, text: str) -> None:
+        """Insert text at a specific index in the buffer."""
+        self._text = self._text[:index] + text + self._text[index:]

@@ -51,14 +51,6 @@ class TestTextEditorWidget:
         assert editor.width() == 400
         assert editor.height() == 300
 
-    def test_append_text(self, qtbot):
-        editor = TextEditorWidget(source=io.StringIO("My first editor!"))
-        qtbot.addWidget(editor)
-        want = editor.buffer.get_text() + " Hello"
-        qtbot.keyClicks(editor, " Hello")
-        got = editor.buffer.get_text()
-        assert got == want, f"got '{got}', want '{want}'"
-
     def test_backspace_removal(self, qtbot):
         editor = TextEditorWidget(source=io.StringIO("My first editor!"))
         qtbot.addWidget(editor)
@@ -87,3 +79,41 @@ class TestTextEditorWidget:
         cursor = editor.text_cursor
         assert cursor.row == 1
         assert cursor.col == 1
+
+    def test_move_cursor_left_right(self, qtbot):
+        initial_text = "Hello"
+        editor = TextEditorWidget(io.StringIO(initial_text))
+        qtbot.addWidget(editor)
+        cursor = editor.text_cursor
+
+        assert cursor.col == 1  # Initial cursor position
+        assert cursor.row == 1
+
+        cursor.move(0, 2)  # row+0, col+2: (1,1) -> (1,3)
+        assert cursor.col == 3
+
+        cursor.move(0, -1)  # row+0, col-1: (1,3) -> (1,2)
+        assert cursor.col == 2
+
+        cursor.move(0, -5)  # Move beyond start
+        assert cursor.col == 1  # Should not go below 1
+
+    def test_insert_text_at_cursor(self, qtbot):
+        initial_text = "Helo"
+        editor = TextEditorWidget(io.StringIO(initial_text))
+        qtbot.addWidget(editor)
+        cursor = editor.text_cursor
+
+        assert cursor.col == 1  # Initial cursor position
+        assert cursor.row == 1
+
+        cursor.move(0, 2)  # row+0, col+2: (1,1) -> (1,3)
+
+        assert cursor.col == 3
+
+        qtbot.keyClicks(editor, "l")
+
+        want = "Hello"
+        got = editor.buffer.get_text()
+        assert got == want, f"got '{got}', want '{want}'"
+        assert cursor.col == 4  # Cursor should move after inserted character
