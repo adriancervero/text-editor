@@ -8,13 +8,6 @@ from text_editor.core.buffer import TextBuffer
 from text_editor.ui.cursor import TextCursor
 
 
-""" Each line a commit:
-TODO: - Multiline
-TODO: - Text selection
-
-"""
-
-
 class TextEditorWidget(QWidget):
     def __init__(
         self, source: io.IOBase = None, width: int = 400, height: int = 300, parent=None
@@ -30,7 +23,7 @@ class TextEditorWidget(QWidget):
         font = QFont("Courier", 12)
         font_metrics = QFontMetrics(font)
         char_width = font_metrics.horizontalAdvance("M")
-        line_height = font_metrics.lineSpacing()
+        self.line_height = font_metrics.lineSpacing()
         self.setFont(font)
         self.text_cursor = TextCursor(
             row=1,
@@ -38,7 +31,7 @@ class TextEditorWidget(QWidget):
             paddx=self.paddx,
             paddy=self.paddy,
             char_width=char_width,
-            line_height=line_height,
+            line_height=self.line_height,
             parent=self,
         )
 
@@ -50,7 +43,10 @@ class TextEditorWidget(QWidget):
 
         # Text
         painter.setPen(QColor("white"))
-        painter.drawText(self.paddx, self.paddy, self.buffer.get_text())
+        lines = self.buffer.get_text().split("\n")
+        for i, line in enumerate(lines):
+            y = self.paddy + i * self.line_height
+            painter.drawText(self.paddx, y, line)
 
         # Cursor
         self.text_cursor.draw(painter)
@@ -59,8 +55,12 @@ class TextEditorWidget(QWidget):
         if event.key() == Qt.Key_Backspace:
             self.buffer.backspace()
             self.text_cursor.move(0, -1)
+        elif event.key() in (Qt.Key_Return, Qt.Key_Enter):
+            index = self.get_cursor_index()
+            self.buffer.insert(index, "\n")
+            self.text_cursor.move(1, -self.text_cursor.col + 1)
         elif event.text():
-            index = self.text_cursor.col - 1
+            index = self.get_cursor_index()
             self.buffer.insert(index, event.text())
             self.text_cursor.move(0, len(event.text()))
         elif event.key() == Qt.Key_Left:
@@ -69,6 +69,12 @@ class TextEditorWidget(QWidget):
             self.text_cursor.move(0, 1)
 
         self.update()
+
+    def get_cursor_index(self) -> int:
+        lines = self.buffer.get_text().split("\n")
+        index = sum(len(line) + 1 for line in lines[: self.text_cursor.row - 1])
+        index += self.text_cursor.col - 1
+        return index
 
 
 class MainWindow(QMainWindow):
